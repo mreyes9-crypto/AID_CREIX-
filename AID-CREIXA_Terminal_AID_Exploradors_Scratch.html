@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal AID-CREIXÀ · Exploradors de Scratch</title>
+<style>
+:root{
+  --ink:#211913;
+  --paper:#f3ead8;
+  --paper2:#fffaf0;
+  --red:#9d2f29;
+  --blue:#184f7e;
+  --green:#4f7d36;
+  --purple:#6f4a88;
+  --orange:#b85f25;
+  --black:#111;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:#0d1117;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  color:var(--ink);
+  font-family:Georgia,"Times New Roman",serif;
+}
+.terminal{
+  width:min(1180px,96vw);
+  height:min(720px,92vh);
+  border-radius:22px;
+  overflow:hidden;
+  background:#111;
+  border:2px solid rgba(255,255,255,.14);
+  box-shadow:0 22px 70px rgba(0,0,0,.6);
+  position:relative;
+}
+.top{
+  height:52px;
+  background:#171717;
+  color:#eee;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  font-family:"Courier New",monospace;
+  font-size:14px;
+  border-bottom:1px solid rgba(255,255,255,.14);
+}
+.lights span{display:inline-block;width:13px;height:13px;border-radius:50%;margin-right:8px;background:#aa2f2b}
+.lights span:nth-child(2){background:#d3a63b}
+.lights span:nth-child(3){background:#4f7d36}
+.screen{
+  position:absolute;
+  inset:52px 0 0 0;
+  padding:34px;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(201,150,84,.18),transparent 24%),
+    radial-gradient(circle at 82% 18%,rgba(22,76,123,.15),transparent 24%),
+    linear-gradient(135deg,var(--paper2),var(--paper));
+}
+.screen:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.12;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,rgba(40,30,20,.18) 0 1px,transparent 1px 5px),
+    repeating-linear-gradient(90deg,rgba(40,30,20,.09) 0 1px,transparent 1px 7px);
+}
+.slide{display:none;position:relative;z-index:1;height:100%;animation:fade .32s ease;overflow:auto;padding-bottom:64px}
+.slide.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+h1,h2,h3,.mono,.stamp,.tag,button{font-family:"Courier New",monospace}
+h1{font-size:56px;line-height:.95;margin:14px 0 10px}
+h2{font-size:34px;line-height:1.05;margin:0 0 14px}
+h3{font-size:20px;margin:14px 0 7px}
+p,li{font-size:18px;line-height:1.42}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.aid{font-family:Arial,sans-serif;font-weight:900;font-size:24px}
+.aid span{display:inline-grid;place-items:center;width:42px;height:42px;border:3px solid #111;border-radius:50%;font-size:16px;margin-right:8px}
+.card{background:rgba(255,250,238,.74);border:1.5px solid rgba(74,57,42,.42);padding:16px;box-shadow:0 3px 0 rgba(70,45,20,.12)}
+.card.ok{background:rgba(236,248,225,.72);border-color:rgba(79,125,54,.55)}
+.card.warn{background:rgba(255,235,225,.72);border-color:rgba(157,47,41,.55)}
+.card.blue{background:rgba(225,239,255,.72);border-color:rgba(24,79,126,.55)}
+.stamp{display:inline-block;color:var(--red);border:4px solid currentColor;padding:8px 14px;font-weight:900;text-transform:uppercase;letter-spacing:1px;background:rgba(245,231,201,.55);transform:rotate(-4deg);font-size:24px}
+.stamp.small{font-size:15px;border-width:3px;padding:5px 9px}
+.stamp.big{font-size:38px;border-width:6px;padding:12px 20px}
+.stamp.green{color:var(--green)}.stamp.blue{color:var(--blue)}.stamp.black{color:#111}.stamp.orange{color:var(--orange)}.stamp.purple{color:var(--purple)}
+.tag{display:inline-block;background:#111;color:white;padding:6px 10px;margin:4px 0;font-size:14px}
+.brush{display:inline-block;color:white;background:var(--blue);padding:7px 18px;font-family:"Courier New",monospace;font-weight:bold;clip-path:polygon(0 14%,92% 0,100% 48%,91% 100%,0 86%)}
+.brush.red{background:var(--red)}.brush.green{background:var(--green)}.brush.black{background:#111}.brush.orange{background:var(--orange)}.brush.purple{background:var(--purple)}
+.note{font-family:"Trebuchet MS",Arial,sans-serif;font-style:italic;font-size:18px;transform:rotate(-2deg);border-bottom:2px solid rgba(80,50,30,.35);padding:8px 0}
+.postit{background:#ead27a;padding:15px;width:210px;min-height:115px;box-shadow:0 5px 12px rgba(0,0,0,.22);transform:rotate(-4deg);font-family:"Trebuchet MS",Arial,sans-serif;font-size:16px}
+.postit.green{background:#cfe3a4}.postit.purple{background:#e9c7e9}.postit.blue{background:#c7dff3}
+.watermark{position:absolute;right:35px;bottom:78px;color:rgba(38,29,22,.14);border:7px solid rgba(38,29,22,.11);font-family:"Courier New",monospace;font-size:50px;font-weight:900;transform:rotate(-13deg);padding:8px 22px;text-transform:uppercase;z-index:0}
+.table{width:100%;border-collapse:collapse;background:rgba(255,250,238,.75);margin:10px 0}
+.table th{background:#111;color:#fff;padding:8px;text-align:left;font-family:"Courier New",monospace;font-size:13px}
+.table td{border:1.5px solid rgba(30,22,15,.65);padding:8px;font-size:15px}
+.tick{font-size:26px;text-align:center}
+.nav{position:absolute;left:34px;right:34px;bottom:26px;display:flex;align-items:center;justify-content:space-between;z-index:10}
+button{background:#111;color:#fff;border:0;border-radius:10px;padding:12px 18px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.35;cursor:not-allowed}
+.progress{font-family:"Courier New",monospace;font-size:14px;background:rgba(255,250,238,.72);padding:7px 12px;border-radius:999px;border:1px solid rgba(74,57,42,.42)}
+@media(max-width:850px){
+  .terminal{height:92vh}
+  .screen{padding:22px;overflow:auto}
+  .grid2,.grid3{grid-template-columns:1fr}
+  h1{font-size:40px}h2{font-size:28px}p,li{font-size:16px}
+  .nav{position:fixed;left:28px;right:28px}
+}
+@media print{
+  body{display:block;background:white;padding:0}
+  .terminal{width:100%;height:auto;border:0;border-radius:0;box-shadow:none}
+  .top,.nav{display:none}
+  .screen{position:static;padding:0;background:white}
+  .screen:before{display:none}
+  .slide{display:block!important;height:auto;min-height:100vh;padding:28px;page-break-after:always;background:linear-gradient(135deg,var(--paper2),var(--paper))}
+}
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="top">
+    <div class="lights"><span></span><span></span><span></span></div>
+    <div>TERMINAL AID-CREIXÀ · MÒDUL SCRATCH</div>
+    <div class="mono">ACCÉS AUTORITZAT</div>
+  </div>
+
+  <main class="screen">
+
+    <section class="slide active">
+      <div class="watermark">SCRATCH</div>
+      <div class="row">
+        <div>
+          <div class="aid"><span>AID</span>AID-CREIXÀ</div>
+          <div class="mono">Missió paral·lela · Laboratori Digital</div>
+        </div>
+        <span class="stamp">Exploració</span>
+      </div>
+      <h1>EXPLORADORS<br>DE SCRATCH</h1>
+      <h2>Mòdul lliure de manipulació digital</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Objectiu general</h3>
+          <p>Descobrir Scratch manipulant lliurement les seves eines, sense reptes tancats ni solucions úniques.</p>
+        </div>
+        <div class="card ok">
+          <h3>Connexió amb l’AID-CREIXÀ</h3>
+          <p>L’equip necessita petits missatges, escenes i animacions digitals per ajudar a explicar la missió.</p>
+        </div>
+      </div>
+      <p class="note">Direcció General — No cal saber-ho tot. Cal provar, observar i compartir un descobriment.</p>
+    </section>
+
+    <section class="slide">
+      <div class="watermark">01</div>
+      <div class="row">
+        <div><div class="aid"><span>AID</span>Sessió 01</div><div class="mono">Activació del personatge</div></div>
+        <span class="stamp blue">Moviment</span>
+      </div>
+      <h2>FEM MOURE UN PERSONATGE</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Explora lliurement</h3>
+          <ul>
+            <li>Obre Scratch.</li>
+            <li>Escull un personatge.</li>
+            <li>Prova els blocs de moviment.</li>
+            <li>Canvia la velocitat, la direcció o la posició.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="postit">Pista AID: què passa si canvies un número?</div>
+          <div class="card ok">
+            <h3>Petit objectiu final</h3>
+            <p>Abans d’acabar, el personatge ha de fer algun moviment quan prems la bandera verda.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card blue">
+        <h3>Per compartir al final</h3>
+        <p><span class="brush">Quin bloc t’ha agradat més?</span></p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="watermark">02</div>
+      <div class="row">
+        <div><div class="aid"><span>AID</span>Sessió 02</div><div class="mono">Comunicació del sistema</div></div>
+        <span class="stamp green">Missatge</span>
+      </div>
+      <h2>FEM PARLAR ELS PERSONATGES</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Explora lliurement</h3>
+          <ul>
+            <li>Afegeix un personatge nou.</li>
+            <li>Prova els blocs de “dir” i “pensar”.</li>
+            <li>Canvia el vestit.</li>
+            <li>Afegeix algun so si vols.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="postit green">Missatge intern: una frase curta també pot ajudar la missió.</div>
+          <div class="card ok">
+            <h3>Petit objectiu final</h3>
+            <p>Els personatges expliquen un petit missatge relacionat amb l’AID-CREIXÀ.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card blue">
+        <h3>Per compartir al final</h3>
+        <p><span class="brush green">Quin efecte fa canviar el vestit?</span></p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="watermark">03</div>
+      <div class="row">
+        <div><div class="aid"><span>AID</span>Sessió 03</div><div class="mono">Construcció d’escena</div></div>
+        <span class="stamp orange">Escena</span>
+      </div>
+      <h2>CREEM UNA ESCENA</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Explora lliurement</h3>
+          <ul>
+            <li>Canvia el fons.</li>
+            <li>Afegeix personatges.</li>
+            <li>Fes que apareguin o desapareguin.</li>
+            <li>Prova diferents efectes.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="postit blue">Observació: el fons també explica part de la història.</div>
+          <div class="card ok">
+            <h3>Petit objectiu final</h3>
+            <p>Crea una escena que podria formar part de l’univers AID-CREIXÀ.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card blue">
+        <h3>Per compartir al final</h3>
+        <p><span class="brush orange">Com pots fer entrar un personatge?</span></p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="watermark">04</div>
+      <div class="row">
+        <div><div class="aid"><span>AID</span>Sessió 04</div><div class="mono">Mini animació final</div></div>
+        <span class="stamp purple">Creació</span>
+      </div>
+      <h2>INVENTEM UNA MINI ANIMACIÓ</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Explora lliurement</h3>
+          <ul>
+            <li>Recupera idees de les sessions anteriors.</li>
+            <li>Combina moviment, missatges i fons.</li>
+            <li>Afegeix algun detall que t’agradi.</li>
+            <li>Prova-ho diverses vegades i fes petits canvis.</li>
+          </ul>
+        </div>
+        <div>
+          <div class="postit purple">Validació: no busquem perfecció. Busquem descoberta.</div>
+          <div class="card ok">
+            <h3>Petit objectiu final</h3>
+            <p>Crea una animació de 20–30 segons inspirada en l’AID-CREIXÀ.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card blue">
+        <h3>Per compartir al final</h3>
+        <p><span class="brush purple">Quin és el teu descobriment preferit?</span></p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="watermark">VALIDACIÓ</div>
+      <div class="row">
+        <div><div class="aid"><span>AID</span>Registre de parella</div><div class="mono">Autoavaluació del mòdul Scratch</div></div>
+        <span class="stamp black">Validació</span>
+      </div>
+      <h2>REGISTRE D’EXPLORACIÓ</h2>
+      <p>Marqueu les frases que descriuen el vostre treball d’avui.</p>
+      <table class="table">
+        <tr><th>Frase</th><th>Sí</th><th>Encara no</th></tr>
+        <tr><td>Hem experimentat amb blocs nous.</td><td class="tick">☐</td><td class="tick">☐</td></tr>
+        <tr><td>Hem ajudat la nostra parella.</td><td class="tick">☐</td><td class="tick">☐</td></tr>
+        <tr><td>Hem descobert almenys una cosa nova.</td><td class="tick">☐</td><td class="tick">☐</td></tr>
+        <tr><td>Hem pogut ensenyar el nostre projecte.</td><td class="tick">☐</td><td class="tick">☐</td></tr>
+      </table>
+      <div class="card ok">
+        <h3>Validació de la Direcció General</h3>
+        <p>□ Mòdul Scratch explorat &nbsp;&nbsp; □ Descobriment compartit &nbsp;&nbsp; □ Preparats per continuar</p>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="nav">
+    <button id="prev">◀ Anterior</button>
+    <div class="progress" id="progress">Pantalla 1/6</div>
+    <button id="next">Següent ▶</button>
+  </div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const prev=document.getElementById('prev');
+const next=document.getElementById('next');
+const progress=document.getElementById('progress');
+let i=0;
+function show(n){
+  i=Math.max(0,Math.min(slides.length-1,n));
+  slides.forEach((s,idx)=>s.classList.toggle('active',idx===i));
+  prev.disabled=i===0;
+  next.disabled=i===slides.length-1;
+  progress.textContent=`Pantalla ${i+1}/${slides.length}`;
+}
+prev.onclick=()=>show(i-1);
+next.onclick=()=>show(i+1);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')show(i+1);
+  if(e.key==='ArrowLeft')show(i-1);
+});
+show(0);
+</script>
+</body>
+</html>
